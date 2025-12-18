@@ -1440,7 +1440,7 @@ class ProcessorMixin:
 
     async def process_document_complete(
         self,
-        file_paths: list[str],      ##########################################
+        file_paths: list[str],  ##########################################
         output_dir: str = None,
         parse_method: str = None,
         display_stats: bool = None,
@@ -1497,12 +1497,14 @@ class ProcessorMixin:
                 content_list, self.config.content_format
             )
 
-        file_paths_name = "".join(file_paths)  #######################################################
+        file_paths_name = "".join(
+            file_paths
+        )  #######################################################
         # Step 3: Insert pure text content with all parameters
         if text_content.strip():
             if file_name is None:
                 # Use full path or basename based on config
-                file_name = file_paths_name   #################################
+                file_name = file_paths_name  #################################
             await insert_text_content(
                 self.lightrag,
                 input=text_content,
@@ -1514,7 +1516,7 @@ class ProcessorMixin:
         else:
             # Determine file reference even if no text content
             if file_name is None:
-                file_name = file_paths_name     #########################################
+                file_name = file_paths_name  #########################################
 
         # Step 4: Process multimodal content (using specialized processors)
         if multimodal_items:
@@ -1527,7 +1529,9 @@ class ProcessorMixin:
                 f"No multimodal content found in document {doc_id}, marked multimodal processing as complete"
             )
 
-        self.logger.info(f"Document {file_paths} processing complete!")                 #################################3
+        self.logger.info(
+            f"Document {file_paths} processing complete!"
+        )  #################################3
 
     async def process_document_complete_lightrag_api(
         self,

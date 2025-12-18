@@ -24,11 +24,13 @@ sys.path.append(str(Path(__file__).parent.parent))
 from lightrag.llm.openai import openai_complete_if_cache
 from lightrag.utils import EmbeddingFunc, logger, set_verbose_debug
 from raganything import RAGAnything, RAGAnythingConfig
-from lightrag.llm.ollama import ollama_embed      # change to use ollama embedding
+from lightrag.llm.ollama import ollama_embed  # change to use ollama embedding
 
 from dotenv import load_dotenv
 
-load_dotenv(dotenv_path=".env", override=True)   #change to True to use the milvusdbs config
+load_dotenv(
+    dotenv_path=".env", override=True
+)  # change to True to use the milvusdbs config
 
 
 def configure_logging():
@@ -88,7 +90,9 @@ def configure_logging():
 
 
 async def process_with_rag(
-    file_paths: list[str],        ##################################################3333333333333333333333333
+    file_paths: list[
+        str
+    ],  ##################################################3333333333333333333333333
     output_dir: str,
     api_key: str,
     base_url: str = None,
@@ -114,7 +118,7 @@ async def process_with_rag(
             enable_image_processing=True,
             enable_table_processing=True,
             enable_equation_processing=True,
-            max_concurrent_files=2         ###########################################################################
+            max_concurrent_files=2,  ###########################################################################
         )
 
         # Define LLM model function
@@ -191,7 +195,7 @@ async def process_with_rag(
         embedding_func = EmbeddingFunc(
             embedding_dim=embedding_dim,
             max_token_size=8192,
-            func=lambda texts: ollama_embed(      # Changing from openai_embed to ollama_embed
+            func=lambda texts: ollama_embed(  # Changing from openai_embed to ollama_embed
                 texts,
                 embed_model=embedding_model,
                 api_key=api_key,
@@ -209,12 +213,16 @@ async def process_with_rag(
 
         # Process document
         await rag.process_document_complete(
-            file_paths=file_paths, output_dir=output_dir, parse_method="auto" ######################################
+            file_paths=file_paths,
+            output_dir=output_dir,
+            parse_method="auto",  ######################################
         )
 
         # Query
         logger.info("\n🧠 Interactive RAGAnything Query Mode")
-        logger.info("Type your query below. Type 'table' or 'equation' for multimodal input. Type 'exit' to quit.\n")
+        logger.info(
+            "Type your query below. Type 'table' or 'equation' for multimodal input. Type 'exit' to quit.\n"
+        )
 
         while True:
             query = input("🔍 Your query: ").strip()
@@ -313,7 +321,6 @@ def main():
     if args.output:
         os.makedirs(args.output, exist_ok=True)
 
-
     ############################################################################################
     # Normalize file_path into a list of files
     input_path = Path(args.file_path)
@@ -335,7 +342,7 @@ def main():
     # Process with RAG
     asyncio.run(
         process_with_rag(
-            file_list,      ########################################################################
+            file_list,  ########################################################################
             args.output,
             args.api_key,
             args.base_url,
