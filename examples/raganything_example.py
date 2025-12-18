@@ -28,7 +28,7 @@ from lightrag.llm.ollama import ollama_embed      # change to use ollama embeddi
 
 from dotenv import load_dotenv
 
-load_dotenv(dotenv_path=".env", override=False)
+load_dotenv(dotenv_path=".env", override=True)   #change to True to use the milvusdbs config
 
 
 def configure_logging():
