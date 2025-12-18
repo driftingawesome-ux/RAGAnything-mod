@@ -9,7 +9,7 @@ import asyncio
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass
 import time
 
@@ -157,7 +157,7 @@ class BatchParser:
 
     def process_single_file(
         self, file_path: str, output_dir: str, parse_method: str = "auto", **kwargs
-    ) -> Tuple[bool, str, Optional[str]]:
+    ) -> tuple[bool, list[dict[str, any]], None] | tuple[bool, str, str]: ################################3333###3#
         """
         Process a single file
 
@@ -193,7 +193,7 @@ class BatchParser:
                 f"({len(content_list)} content blocks, {processing_time:.2f}s)"
             )
 
-            return True, file_path, None
+            return True, content_list, None ######################################################
 
         except Exception as e:
             error_msg = f"Failed to process {file_path}: {str(e)}"
@@ -207,7 +207,7 @@ class BatchParser:
         parse_method: str = "auto",
         recursive: bool = True,
         **kwargs,
-    ) -> BatchProcessingResult:
+    ) -> BatchProcessingResult | list[any]:          ##########################################
         """
         Process multiple files in parallel
 
@@ -244,6 +244,7 @@ class BatchParser:
         output_path.mkdir(parents=True, exist_ok=True)
 
         # Process files in parallel
+        content_lists = []         ##############################################################################
         successful_files = []
         failed_files = []
         errors = {}
@@ -275,14 +276,12 @@ class BatchParser:
                 for future in as_completed(
                     future_to_file, timeout=self.timeout_per_file
                 ):
-                    success, file_path, error_msg = future.result()
+                    success, content_list, error_msg = future.result()  ######################################
 
                     if success:
-                        successful_files.append(file_path)
-                    else:
-                        failed_files.append(file_path)
-                        errors[file_path] = error_msg
+                        content_lists.extend(content_list)
 
+########################################################################333333333333333333333333
                     if pbar:
                         pbar.update(1)
 
@@ -316,7 +315,7 @@ class BatchParser:
         # Log summary
         self.logger.info(result.summary())
 
-        return result
+        return content_lists #######################################################################
 
     async def process_batch_async(
         self,

@@ -88,7 +88,7 @@ def configure_logging():
 
 
 async def process_with_rag(
-    file_path: str,
+    file_paths: list[str],        ##################################################3333333333333333333333333
     output_dir: str,
     api_key: str,
     base_url: str = None,
@@ -99,7 +99,7 @@ async def process_with_rag(
     Process document with RAGAnything
 
     Args:
-        file_path: Path to the document
+        file_paths: list of Paths to the document
         output_dir: Output directory for RAG results
         api_key: OpenAI API key
         base_url: Optional base URL for API
@@ -114,6 +114,7 @@ async def process_with_rag(
             enable_image_processing=True,
             enable_table_processing=True,
             enable_equation_processing=True,
+            max_concurrent_files=2         ###########################################################################
         )
 
         # Define LLM model function
@@ -208,7 +209,7 @@ async def process_with_rag(
 
         # Process document
         await rag.process_document_complete(
-            file_path=file_path, output_dir=output_dir, parse_method="auto"
+            file_paths=file_paths, output_dir=output_dir, parse_method="auto" ######################################
         )
 
         # Query
@@ -312,10 +313,29 @@ def main():
     if args.output:
         os.makedirs(args.output, exist_ok=True)
 
+
+    ############################################################################################
+    # Normalize file_path into a list of files
+    input_path = Path(args.file_path)
+    if input_path.is_dir():
+        # Collect all files in the folder (non-recursive)
+        file_list = [str(p) for p in input_path.iterdir() if p.is_file()]
+        # If you want recursive search, replace with:
+        # file_list = [str(p) for p in input_path.rglob("*") if p.is_file()]
+    elif input_path.is_file():
+        file_list = [str(input_path)]
+    else:
+        logger.error(f"Error: Path not found: {input_path}")
+        return
+
+    logger.info(f"Files to process: {file_list}")
+    # Now you can pass file_list to your batch processor
+    #############################################################################################3
+
     # Process with RAG
     asyncio.run(
         process_with_rag(
-            args.file_path,
+            file_list,      ########################################################################
             args.output,
             args.api_key,
             args.base_url,

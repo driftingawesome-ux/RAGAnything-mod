@@ -1440,7 +1440,7 @@ class ProcessorMixin:
 
     async def process_document_complete(
         self,
-        file_path: str,
+        file_paths: list[str],      ##########################################
         output_dir: str = None,
         parse_method: str = None,
         display_stats: bool = None,
@@ -1454,7 +1454,7 @@ class ProcessorMixin:
         Complete document processing workflow
 
         Args:
-            file_path: Path to the file to process
+            file_paths: list of the files to process
             output_dir: output directory (defaults to config.parser_output_dir)
             parse_method: Parse method (defaults to config.parse_method)
             display_stats: Whether to display content statistics (defaults to config.display_content_stats)
@@ -1474,11 +1474,11 @@ class ProcessorMixin:
         if display_stats is None:
             display_stats = self.config.display_content_stats
 
-        self.logger.info(f"Starting complete document processing: {file_path}")
+        self.logger.info(f"Starting complete document processing: {file_paths}")
 
-        # Step 1: Parse document
-        content_list, content_based_doc_id = await self.parse_document(
-            file_path, output_dir, parse_method, display_stats, **kwargs
+        # Step 1: Parse document ###################################################################
+        content_list, content_based_doc_id = await self.process_documents_batch(
+            file_paths, output_dir, parse_method, display_stats, **kwargs
         )
 
         # Use provided doc_id or fall back to content-based doc_id
