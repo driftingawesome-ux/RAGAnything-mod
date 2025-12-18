@@ -21,9 +21,10 @@ import sys
 
 sys.path.append(str(Path(__file__).parent.parent))
 
-from lightrag.llm.openai import openai_complete_if_cache, openai_embed
+from lightrag.llm.openai import openai_complete_if_cache
 from lightrag.utils import EmbeddingFunc, logger, set_verbose_debug
 from raganything import RAGAnything, RAGAnythingConfig
+from lightrag.llm.ollama import ollama_embed      # change to use ollama embedding
 
 from dotenv import load_dotenv
 
@@ -183,17 +184,17 @@ async def process_with_rag(
                 return llm_model_func(prompt, system_prompt, history_messages, **kwargs)
 
         # Define embedding function - using environment variables for configuration
-        embedding_dim = int(os.getenv("EMBEDDING_DIM", "3072"))
-        embedding_model = os.getenv("EMBEDDING_MODEL", "text-embedding-3-large")
+        embedding_dim = int(os.getenv("EMBEDDING_DIM", "4096"))
+        embedding_model = os.getenv("EMBEDDING_MODEL", "qwen3-embedding:8b")
 
         embedding_func = EmbeddingFunc(
             embedding_dim=embedding_dim,
             max_token_size=8192,
-            func=lambda texts: openai_embed(
+            func=lambda texts: ollama_embed(      # Changing from openai_embed to ollama_embed
                 texts,
-                model=embedding_model,
+                embed_model=embedding_model,
                 api_key=api_key,
-                base_url=base_url,
+                base_url="http://127.0.0.1:11434",
             ),
         )
 
