@@ -332,7 +332,7 @@ class BatchParser:
         parse_method: str = "auto",
         recursive: bool = True,
         **kwargs,
-    ) -> BatchProcessingResult:
+    ) -> BatchProcessingResult | list[any]:  ##########################################
         """
         Async version of batch processing
 

@@ -1477,7 +1477,7 @@ class ProcessorMixin:
         self.logger.info(f"Starting complete document processing: {file_paths}")
 
         # Step 1: Parse document ###################################################################
-        content_list, content_based_doc_id = await self.process_documents_batch(
+        content_list, content_based_doc_id = await self.process_documents_batch_async(
             file_paths, output_dir, parse_method, display_stats, **kwargs
         )
 
