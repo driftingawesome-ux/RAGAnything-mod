@@ -21,10 +21,9 @@ import sys
 
 sys.path.append(str(Path(__file__).parent.parent))
 
-from lightrag.llm.openai import openai_complete_if_cache
+from lightrag.llm.openai import openai_complete_if_cache, openai_embed
 from lightrag.utils import EmbeddingFunc, logger, set_verbose_debug
 from raganything import RAGAnything, RAGAnythingConfig
-from lightrag.llm.ollama import ollama_embed  # change to use ollama embedding
 
 from dotenv import load_dotenv
 
@@ -124,12 +123,12 @@ async def process_with_rag(
         # Define LLM model function
         def llm_model_func(prompt, system_prompt=None, history_messages=[], **kwargs):
             return openai_complete_if_cache(
-                "gpt-4o-mini",
+                "qwen3-omni-flash",
                 prompt,
                 system_prompt=system_prompt,
                 history_messages=history_messages,
                 api_key=api_key,
-                base_url=base_url,
+                base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
                 **kwargs,
             )
 
@@ -145,19 +144,19 @@ async def process_with_rag(
             # If messages format is provided (for multimodal VLM enhanced query), use it directly
             if messages:
                 return openai_complete_if_cache(
-                    "gpt-4o",
+                    "qwen3-omni-flash",
                     "",
                     system_prompt=None,
                     history_messages=[],
                     messages=messages,
                     api_key=api_key,
-                    base_url=base_url,
+                    base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
                     **kwargs,
                 )
             # Traditional single image format
             elif image_data:
                 return openai_complete_if_cache(
-                    "gpt-4o",
+                    "qwen3-omni-flash",
                     "",
                     system_prompt=None,
                     history_messages=[],
@@ -181,7 +180,7 @@ async def process_with_rag(
                         else {"role": "user", "content": prompt},
                     ],
                     api_key=api_key,
-                    base_url=base_url,
+                    base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
                     **kwargs,
                 )
             # Pure text format
@@ -189,17 +188,17 @@ async def process_with_rag(
                 return llm_model_func(prompt, system_prompt, history_messages, **kwargs)
 
         # Define embedding function - using environment variables for configuration
-        embedding_dim = int(os.getenv("EMBEDDING_DIM", "4096"))
-        embedding_model = os.getenv("EMBEDDING_MODEL", "qwen3-embedding:8b")
+        embedding_dim = int(os.getenv("EMBEDDING_DIM", "3072"))
+        embedding_model = os.getenv("EMBEDDING_MODEL", "text-embedding-3-large")
 
         embedding_func = EmbeddingFunc(
             embedding_dim=embedding_dim,
             max_token_size=8192,
-            func=lambda texts: ollama_embed(  # Changing from openai_embed to ollama_embed
+            func=lambda texts: openai_embed(  # change to ollama_embed when running on server
                 texts,
-                embed_model=embedding_model,
-                api_key=api_key,
-                base_url="http://127.0.0.1:11434",
+                model=embedding_model,
+                api_key="",
+                base_url="https://api.openai.com/v1",
             ),
         )
 
